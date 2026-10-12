@@ -41,6 +41,11 @@ def _cli_lab(name: str, params_json: str) -> int:
 
 
 def main(argv=None) -> int:
+    for _s in (sys.stdout, sys.stderr):   # θ and other non-ASCII in CLI output on Windows
+        try:
+            _s.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     ap = argparse.ArgumentParser(prog="pse-jlab", add_help=True)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--list", action="store_true")

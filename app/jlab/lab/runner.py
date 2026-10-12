@@ -104,7 +104,7 @@ def run(name: str, params: dict | None = None, note: str = "",
     secs = time.perf_counter() - t0
 
     payload = json.dumps(result, indent=2, default=_default, sort_keys=True)
-    (rundir / "result.json").write_text(payload)
+    (rundir / "result.json").write_bytes(payload.encode())  # bytes, so no CRLF translation; seal/verify agree cross-platform
     digest = hashlib.sha256(payload.encode()).hexdigest()
     (rundir / "sha256").write_text(digest + "  result.json\n")
     (rundir / "meta.json").write_text(json.dumps({
