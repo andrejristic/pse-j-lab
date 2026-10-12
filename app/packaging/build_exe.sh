@@ -7,12 +7,13 @@ STAGE="$HERE/stage-win"; OUT="$REPO/dist"
 ISCC="${ISCC:-/c/Program Files (x86)/Inno Setup 6/ISCC.exe}"
 echo "== PyInstaller bundle"
 rm -rf "$APP/build/pyi" "$STAGE"
-"$PY" -m PyInstaller --noconfirm --clean --onedir --windowed --name "$PKG" \
+DATASETS_WIN="$(cygpath -w "$REPO/datasets")"
+MSYS2_ARG_CONV_EXCL="*" "$PY" -m PyInstaller --noconfirm --clean --onedir --windowed --name "$PKG" \
   --icon "$HERE/$PKG.ico" \
   --distpath "$APP/build/pyi/dist" --workpath "$APP/build/pyi/work" --specpath "$APP/build/pyi" \
   --collect-submodules jlab --collect-data jlab \
   --collect-all matplotlib \
-  --add-data "$REPO/datasets;datasets" \
+  --add-data "${DATASETS_WIN};datasets" \
   "$APP/main.py"
 APPDIR="$STAGE/$PKG"; mkdir -p "$APPDIR"
 cp -a "$APP/build/pyi/dist/$PKG/." "$APPDIR/"
