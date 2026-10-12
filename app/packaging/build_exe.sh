@@ -8,7 +8,7 @@ ISCC="${ISCC:-/c/Program Files (x86)/Inno Setup 6/ISCC.exe}"
 echo "== PyInstaller bundle"
 rm -rf "$APP/build/pyi" "$STAGE"
 DATASETS_WIN="$(cygpath -w "$REPO/datasets")"
-MSYS2_ARG_CONV_EXCL="*" "$PY" -m PyInstaller --noconfirm --clean --onedir --windowed --name "$PKG" \
+"$PY" -m PyInstaller --noconfirm --clean --onedir --windowed --name "$PKG" \
   --icon "$HERE/$PKG.ico" \
   --distpath "$APP/build/pyi/dist" --workpath "$APP/build/pyi/work" --specpath "$APP/build/pyi" \
   --collect-submodules jlab --collect-data jlab \
