@@ -52,7 +52,22 @@ def main(argv=None) -> int:
     ap.add_argument("--lab", metavar="NAME")
     ap.add_argument("--params", default="", metavar="JSON")
     ap.add_argument("--version", action="store_true")
+    ap.add_argument("--diag-seal", action="store_true", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
+
+    if getattr(args, "diag_seal", False):
+        import os, tempfile, pathlib
+        os.environ["PSE_JLAB_HOME"] = tempfile.mkdtemp()
+        from jlab.lab import run
+        from jlab.lab.runner import verify_run
+        r = run("l5_logdet_consistency", {"dims": [4], "n_points": 2})
+        d = pathlib.Path(r.path)
+        print("run ok", r.ok)
+        print("verify", verify_run(r.id))
+        print("rec.sha", r.sha256)
+        print("file bytes", len((d / "result.json").read_bytes()))
+        print("sha sidecar", repr((d / "sha256").read_text()))
+        return 0
 
     if args.version:
         import jlab

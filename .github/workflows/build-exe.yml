@@ -36,6 +36,13 @@ jobs:
           $setup = Get-ChildItem ..\dist\PSEJLab-Setup-*.exe | Select-Object -First 1
           Start-Process $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$env:RUNNER_TEMP\jlab" -Wait
           if (-not (Test-Path "$env:RUNNER_TEMP\jlab\pse-jlab.exe")) { throw "not installed" }
+      - name: Diagnose seal/verify (frozen exe)
+        shell: pwsh
+        run: |
+          $p = Start-Process "$env:RUNNER_TEMP\jlab\pse-jlab.exe" -ArgumentList '--diag-seal' -PassThru -Wait -RedirectStandardOutput "$env:RUNNER_TEMP\d.log" -RedirectStandardError "$env:RUNNER_TEMP\de.log"
+          Write-Host "--- diag stdout:"; Get-Content "$env:RUNNER_TEMP\d.log" -ErrorAction SilentlyContinue
+          Write-Host "--- diag stderr:"; Get-Content "$env:RUNNER_TEMP\de.log" -ErrorAction SilentlyContinue
+        continue-on-error: true
       - name: Selftest
         shell: pwsh
         run: |
