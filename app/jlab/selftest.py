@@ -250,12 +250,12 @@ def _c_run_card():
               run_id=rec.id, topic="tema-tokovi", author="selftest")
     assert verify_run(rec.id)["ok"]
     p = Path(rec.path) / "result.json"
-    original = p.read_text()
+    original = p.read_bytes()                       # bytes, so the restore is exact on every OS
     data = json.loads(original)
     data["worst_assembled"] = 0.0
-    p.write_text(json.dumps(data, indent=2))
+    p.write_bytes(json.dumps(data, indent=2).encode())
     tampered = verify_run(rec.id)
-    p.write_text(original)
+    p.write_bytes(original)                          # restore the sealed bytes verbatim
     assert not tampered["ok"], "tampering with result.json went undetected"
     assert verify_run(rec.id)["ok"]
     return f"card {c.id}; tampering detected"

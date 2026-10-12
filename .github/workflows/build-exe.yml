@@ -23,10 +23,6 @@ jobs:
       - name: Inno Setup
         run: |
           if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ]; then choco install innosetup --no-progress -y; fi
-      - name: Diagnose seal/verify (venv, plots on)
-        run: |
-          .venv/Scripts/python -c "import os,tempfile,pathlib; os.environ['PSE_JLAB_HOME']=tempfile.mkdtemp(); from jlab.lab import run; from jlab.lab.runner import verify_run; from jlab.vault import CardKind, admit; r=run('l5_logdet_consistency',{'dims':[4],'n_points':2}); print('run ok',r.ok); print('v1',verify_run(r.id)); c=admit(CardKind.COMPUTED,'Selftest: the free determinant equals the assembled determinant.',run_id=r.id,topic='tema-tokovi',author='selftest'); print('admit ok'); print('v2',verify_run(r.id)); p=pathlib.Path(r.path); print('rlen',len((p/'result.json').read_bytes()))"
-        continue-on-error: true
       - name: Build installer
         run: bash packaging/build_exe.sh
       - name: Install silently
@@ -36,13 +32,6 @@ jobs:
           $setup = Get-ChildItem ..\dist\PSEJLab-Setup-*.exe | Select-Object -First 1
           Start-Process $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$env:RUNNER_TEMP\jlab" -Wait
           if (-not (Test-Path "$env:RUNNER_TEMP\jlab\pse-jlab.exe")) { throw "not installed" }
-      - name: Diagnose seal/verify (frozen exe)
-        shell: pwsh
-        run: |
-          $p = Start-Process "$env:RUNNER_TEMP\jlab\pse-jlab.exe" -ArgumentList '--diag-seal' -PassThru -Wait -RedirectStandardOutput "$env:RUNNER_TEMP\d.log" -RedirectStandardError "$env:RUNNER_TEMP\de.log"
-          Write-Host "--- diag stdout:"; Get-Content "$env:RUNNER_TEMP\d.log" -ErrorAction SilentlyContinue
-          Write-Host "--- diag stderr:"; Get-Content "$env:RUNNER_TEMP\de.log" -ErrorAction SilentlyContinue
-        continue-on-error: true
       - name: Selftest
         shell: pwsh
         run: |
