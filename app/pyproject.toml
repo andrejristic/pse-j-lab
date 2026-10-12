@@ -1,0 +1,19 @@
+[project]
+name = "pse-jlab"
+version = "0.1.0"
+description = "PSE J-Lab: five labs on the Jacobian of small neural nets, PSE-governed."
+license = "GPL-3.0-or-later"
+authors = [{ name = "Andrej Ristic" }]
+requires-python = ">=3.10"
+dependencies = ["PySide6-Essentials>=6.5", "numpy>=1.24", "matplotlib>=3.6"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["jlab*"]
+
+[tool.setuptools.package-data]
+jlab = ["**/*.json", "**/*.txt", "**/*.csv"]

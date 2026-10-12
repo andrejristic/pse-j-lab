@@ -1,0 +1,31 @@
+name: build-deb
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  deb:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -e . pyinstaller
+      - name: Build .deb
+        run: bash packaging/build_deb.sh
+      - name: Install
+        run: sudo apt-get update && sudo apt-get install -y ../dist/pse-jlab_*_amd64.deb
+      - name: Selftest (headless, no network)
+        run: pse-jlab --selftest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pse-jlab-deb
+          path: dist/*.deb
