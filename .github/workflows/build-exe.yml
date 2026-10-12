@@ -23,6 +23,10 @@ jobs:
       - name: Inno Setup
         run: |
           if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ]; then choco install innosetup --no-progress -y; fi
+      - name: Diagnose seal/verify (venv)
+        run: |
+          .venv/Scripts/python -c "import os,tempfile,pathlib; os.environ['PSE_JLAB_HOME']=tempfile.mkdtemp(); from jlab.lab import run; from jlab.lab.runner import verify_run; r=run('l5_logdet_consistency',{'dims':[4],'n_points':2},make_plots=False); print('run ok',r.ok); v=verify_run(r.id); print('verify',v); p=pathlib.Path(r.path); print('sha file',repr((p/'sha256').read_text())); print('rlen',len((p/'result.json').read_bytes()),'rec.sha',r.sha256)"
+        continue-on-error: true
       - name: Build installer
         run: bash packaging/build_exe.sh
       - name: Install silently
