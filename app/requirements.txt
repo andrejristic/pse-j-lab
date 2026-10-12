@@ -1,0 +1,9 @@
+# Core: what the labs actually need.
+numpy>=1.24
+matplotlib>=3.6
+PySide6-Essentials>=6.5
+
+# Optional, installed with ./setup.sh --with-torch.
+# torch is used ONLY as an independent oracle: our exact Jacobian must agree
+# with torch.func.jacrev. Nothing in the five labs requires it.
+# torch>=2.0
