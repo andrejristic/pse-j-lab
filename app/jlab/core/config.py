@@ -10,7 +10,15 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
+
+
+def _frozen_base() -> Path | None:
+    """Bundle root when packaged with PyInstaller (datasets/wheels ship here)."""
+    if getattr(sys, "frozen", False):
+        return Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
+    return None
 
 # --- PSE kernel constants (PSE_MASTER_ARCHITECTURE, sec. 2) -------------------
 SELF_WEIGHT = 0.70
@@ -40,7 +48,12 @@ def home() -> Path:
         root = Path(env).expanduser()
     else:
         xdg = os.environ.get("XDG_DATA_HOME")
-        base = Path(xdg).expanduser() if xdg else Path.home() / ".local" / "share"
+        if sys.platform == "win32":
+            base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        elif xdg:
+            base = Path(xdg).expanduser()
+        else:
+            base = Path.home() / ".local" / "share"
         root = base / APP_NAME
     root.mkdir(parents=True, exist_ok=True)
     return root
@@ -53,8 +66,10 @@ def app_dir() -> Path:
 
 def datasets_dir() -> Path:
     """Where MNIST / FashionMNIST live.  Searched, never assumed."""
+    fb = _frozen_base()
     cand = [
         os.environ.get("PSE_JLAB_DATASETS"),
+        (fb / "datasets") if fb else None,
         home() / "datasets",
         app_dir().parent / "datasets",          # source checkout: <proj>/datasets
         Path("/opt") / APP_NAME / "datasets",
@@ -70,8 +85,10 @@ def datasets_dir() -> Path:
 
 def wheels_dir() -> Path | None:
     """Offline wheelhouse, if it shipped with the app."""
+    fb = _frozen_base()
     return _first_existing([
         os.environ.get("PSE_JLAB_WHEELS"),
+        (fb / "wheels") if fb else None,
         app_dir().parent / "wheels",
         Path("/opt") / APP_NAME / "wheels",
     ])
